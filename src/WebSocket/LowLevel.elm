@@ -126,11 +126,11 @@ type BadClose
     | BadReason
 
 
-{-| Send a string over the `WebSocket` to the server. If there is any problem
+{-| Send a message over the `WebSocket` to the server. If there is any problem
 with the send, you will get some data about it as the result of running this
 task.
 -}
-send : WebSocket -> String -> Task x (Maybe BadSend)
+send : WebSocket -> MessageData -> Task x (Maybe BadSend)
 send =
   Native.WebSocket.send
 

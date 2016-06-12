@@ -7,6 +7,7 @@ function open(url, settings)
 		try
 		{
 			var socket = new WebSocket(url);
+			socket.binaryType = "arraybuffer";
 		}
 		catch(err)
 		{
@@ -70,7 +71,7 @@ function open(url, settings)
 	});
 }
 
-function send(socket, string)
+function send(socket, messageData)
 {
 	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
 	{
@@ -81,7 +82,7 @@ function send(socket, string)
 
 		try
 		{
-			socket.send(string);
+			socket.send(messageData._0);
 		}
 		catch(err)
 		{

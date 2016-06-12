@@ -40,7 +40,7 @@ type alias MessageData = WS.MessageData
 
 
 type MyCmd msg
-  = Send String String
+  = Send String MessageData
 
 
 {-| Send a message to a particular address. You might say something like this:
@@ -51,7 +51,7 @@ type MyCmd msg
 `listen` or `keepAlive`. If you are not, the web socket will be created to
 send one message and then closed. Not good!
 -}
-send : String -> String -> Cmd msg
+send : String -> MessageData -> Cmd msg
 send url message =
   command (Send url message)
 
@@ -129,7 +129,7 @@ type alias SocketsDict =
 
 
 type alias QueuesDict =
-  Dict.Dict String (List String)
+  Dict.Dict String (List MessageData)
 
 
 type alias SubsDict msg =
