@@ -1,5 +1,6 @@
 effect module WebSocket where { command = MyCmd, subscription = MySub } exposing
-  ( send
+  ( MessageData
+  , send
   , listen
   , keepAlive
   )
@@ -32,6 +33,9 @@ import WebSocket.LowLevel as WS
 
 
 
+{-| Re-exported LowLevel MessageData -}
+type alias MessageData = WS.MessageData
+
 -- COMMANDS
 
 
@@ -62,7 +66,7 @@ cmdMap _ (Send url msg) =
 
 
 type MySub msg
-  = Listen String (String -> msg)
+  = Listen String (MessageData -> msg)
   | KeepAlive String
 
 
@@ -78,7 +82,7 @@ like this:
 with an exponential backoff strategy. Any messages you try to `send` while the
 connection is down are queued and will be sent as soon as possible.
 -}
-listen : String -> (String -> msg) -> Sub msg
+listen : String -> (MessageData -> msg) -> Sub msg
 listen url tagger =
   subscription (Listen url tagger)
 
@@ -129,7 +133,7 @@ type alias QueuesDict =
 
 
 type alias SubsDict msg =
-  Dict.Dict String (List (String -> msg))
+  Dict.Dict String (List (MessageData -> msg))
 
 
 type Connection
@@ -235,7 +239,7 @@ add value maybeList =
 
 
 type Msg
-  = Receive String String
+  = Receive String MessageData
   | Die String
   | GoodOpen String WS.WebSocket
   | BadOpen String
@@ -244,12 +248,12 @@ type Msg
 onSelfMsg : Platform.Router msg Msg -> Msg -> State msg -> Task Never (State msg)
 onSelfMsg router selfMsg state =
   case selfMsg of
-    Receive name str ->
+    Receive name messageData ->
       let
         sends =
           Dict.get name state.subs
             |> Maybe.withDefault []
-            |> List.map (\tagger -> Platform.sendToApp router (tagger str))
+            |> List.map (\tagger -> Platform.sendToApp router (tagger messageData))
       in
         Task.sequence sends &> Task.succeed state
 

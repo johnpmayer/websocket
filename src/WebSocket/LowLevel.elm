@@ -1,6 +1,6 @@
 module WebSocket.LowLevel exposing
   ( WebSocket
-  , open, Settings
+  , open, MessageData(String, ArrayBuffer), Settings
   , send, close, closeWith
   , bytesQueued
   , BadOpen(..), BadClose(..), BadSend(..)
@@ -27,6 +27,7 @@ these things.
 -}
 
 import Native.WebSocket
+import Binary.ArrayBuffer exposing (ArrayBuffer)
 import Task exposing (Task)
 
 
@@ -47,6 +48,12 @@ open : String -> Settings -> Task BadOpen WebSocket
 open =
   Native.WebSocket.open
 
+{-|
+Message event data can be multiple types of payloads
+-}
+type MessageData
+  = String String
+  | ArrayBuffer ArrayBuffer
 
 {-| The settings describe how a `WebSocket` works as long as it is still open.
 
@@ -64,7 +71,7 @@ program. **Ideally this is handled by the effect library you are using though.
 Most people should not be working with this stuff directly.**
 -}
 type alias Settings =
-  { onMessage : WebSocket -> String -> Task Never ()
+  { onMessage : WebSocket -> MessageData -> Task Never ()
   , onClose : { code : Int, reason : String, wasClean : Bool } -> Task Never ()
   }
 
@@ -144,4 +151,3 @@ pile up on the queue endlessly.
 bytesQueued : WebSocket -> Task x Int
 bytesQueued =
   Native.WebSocket.bytesQueued
-

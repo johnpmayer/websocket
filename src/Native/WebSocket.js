@@ -21,7 +21,35 @@ function open(url, settings)
 		});
 
 		socket.addEventListener("message", function(event) {
-			_elm_lang$core$Native_Scheduler.rawSpawn(A2(settings.onMessage, socket, event.data));
+			var messageData = {}
+			switch (typeof event.data) {
+			case "string":
+				messageData = {
+					ctor: "String",
+					_0: event.data
+				};
+				break;
+			case "object":
+				if (event.data instanceof ArrayBuffer) {
+					messageData = {
+						ctor: "ArrayBuffer",
+						_0: event.data
+					}
+				/*
+				} else if (event.data instanceof Blob) {
+					messageData = {
+						ctor: "Blob",
+						_0 = event.data
+					}
+				*/
+				} else {
+					throw "Unexpected event data type"
+				}
+				break;
+			default:
+				throw "Unexpected event data type"
+			}
+			_elm_lang$core$Native_Scheduler.rawSpawn(A2(settings.onMessage, socket, messageData));
 		});
 
 		socket.addEventListener("close", function(event) {
@@ -96,3 +124,4 @@ return {
 };
 
 }();
+/* SHIM Native.WebSocket */
